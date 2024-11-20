@@ -1,12 +1,7 @@
 import { Schema, model } from "mongoose";
+import { IQuestion } from "../GlobalTypes";
 
-interface IQuestion{
-    tittle: String;
-    type: 'radio' | 'checkbox' | 'select' | 'text',
-    isMandatory:boolean
-    QstId: Schema.Types.ObjectId | string;
-    Answer:String;
-}
+
 
 const QuestionSchema = new Schema<IQuestion>({
     tittle:{
@@ -33,4 +28,4 @@ const QuestionSchema = new Schema<IQuestion>({
     }
 });
 
-export const AnswerModel = model ("answer", AnswerSchema);
+export const AnswerModel = model ("answer", QuestionSchema);
