@@ -12,8 +12,14 @@ const App = () => {
     setData(loginData)
   }
 
-  const onSubmit = () => {
+  const onSubmit = async() => {
     //Peticion a la DB
+    try{
+      await axios.post("http://localhost:4000/user/controller", data)
+      alert("Todo bien")
+  }catch (error){
+      alert("Hubo un error")
+  }
     console.log(data)
   }
 
