@@ -1,6 +1,7 @@
 import express, { Application, Request, Response }from "express";
 import cors from "cors";
 import { registerUsers } from "./controllers/UserControler";
+import { singin } from "./controllers/UserControler";
 
 const app: Application = express();
 
@@ -16,5 +17,6 @@ app.get("/", (_req:Request, res:Response)=>{
 
 //usuarios
 app.post("/users/create", registerUsers)
+app.post("/users/sing-in",singin)
 
 export default app;

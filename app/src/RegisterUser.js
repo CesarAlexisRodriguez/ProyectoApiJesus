@@ -41,7 +41,7 @@ export const RegisterUser = () => {
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>Apellidos:</Form.Label>
-                            <Form.Control onChange={onChangeRegister} name="lastNmaes" placeholder="Ingresa tu apellido" />
+                            <Form.Control onChange={onChangeRegister} name="lastNames" placeholder="Ingresa tu apellido" />
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>Correo:</Form.Label>

@@ -8,7 +8,7 @@ export const registerUsers = async (req:Request, res:Response): Promise <any>=>{
         //primero validar que los datos que necesitamos existen
         const name = req.body.name
         const email = req.body.email
-        const lastNames = req.body.lastName
+        const lastNames = req.body.lastNames
         const password = req.body.password
         const rol = req.body.rol
                 //administradores NO PUEDEN CREAR CLIENTES
@@ -17,7 +17,6 @@ export const registerUsers = async (req:Request, res:Response): Promise <any>=>{
                         msg:"No puedes crear un cliente"
                     })
                 }
-
         if(!name || !email || !lastNames || !password || !rol){
             return res.status(400).json({
                 msg:"Faltan datos para crear un usuario"
@@ -62,9 +61,8 @@ export const singin = async (req:Request, res:Response): Promise<any>=>{
         return; 
        }
        const token = jwt.sign(JSON.stringify(user),"pocoyo");
-       res.status(200).json({
-            msg: 'Sesion iniciada con exito', token
-       })
+       res.status(200).json({msg: 'Sesion iniciada con exito', token, user})
+       return;
     } catch (error) {
         console.log(error);
         res.status(500).json({
