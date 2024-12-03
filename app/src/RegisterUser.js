@@ -3,7 +3,6 @@ import { Button, Card, Container, Form } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-
 export const RegisterUser = () => {
     const [data, setData] = useState({});
 
@@ -20,14 +19,11 @@ export const RegisterUser = () => {
     const onSubmit = async () => {
         /* Enviar data al server */
         try{
-            data.rol = 'client'
-            await axios.post('http://localhost:4000/users/create', data)
-            navigate("/")
+            data.rol= "client"
+            await axios.post("http://localhost:4000/questionnaires/createq", data)
         }catch (error){
-            alert("hubo un error")
+            alert("Hubo un error")
         }
-        console.log(data)
-        navigate("/")
     }
     return (
         <Container>
@@ -56,5 +52,5 @@ export const RegisterUser = () => {
                 </Card.Body>
             </Card>
         </Container>
-    )
+    )
 }

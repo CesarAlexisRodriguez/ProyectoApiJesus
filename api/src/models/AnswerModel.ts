@@ -19,3 +19,5 @@ const AnswerSchema = new Schema<IAnswer>({
         required: true
     }
 });
+
+export const AnswerModel = model ("answer",  AnswerSchema);
