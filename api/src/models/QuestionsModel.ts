@@ -28,4 +28,4 @@ const QuestionSchema = new Schema<IQuestion>({
     }
 });
 
-export const QuestionsModel = model ("question", QuestionSchema);
+export const QuestionModel = model ("question", QuestionSchema);

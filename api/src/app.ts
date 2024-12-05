@@ -2,7 +2,7 @@ import express, { Application, Request, Response }from "express";
 import cors from "cors";
 import { registerUsers } from "./controllers/UserControler";
 import { singin } from "./controllers/UserControler";
-import { createQuestion } from "./controllers/QuestionsController"
+import { getMetrics, getQuestionnaires } from "./controllers/QuestionnairesController";
 const app: Application = express();
 
 app.use(cors())
@@ -17,7 +17,8 @@ app.get("/", (_req:Request, res:Response)=>{
 
 //usuarios
 app.post("/users/create", registerUsers)
-app.post("/users/sing-in",singin)
-app.post("/questionnaires/createq", createQuestion)
+app.post("/users/sign-in", singin)
+app.post("/questionnaire/get-metrics",getMetrics)
+app.get("/questionnaires/get-all", getQuestionnaires)
 
 export default app;

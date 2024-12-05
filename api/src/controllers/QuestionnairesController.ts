@@ -1,139 +1,78 @@
 import { Request, Response } from "express";
+import { IQuestion, IQuestionnaries } from "../GlobalTypes";
+import { QuestionModel } from "../models/QuestionsModel";
 import { QuestionnairesModel } from "../models/Questionnaries";
+import { OpcionsModel } from "../models/Opcions";
+import { UserModel } from "../models/UsersModels";
 
 
-export const createQuestionnaire = async (req: Request, res: Response): Promise<any> => {
+export const createQuizz = async (req: Request, res: Response): Promise<void> => {
     try {
-        const tittle = req.body.tittle
-        const description = req.body.description
-        const userId = req.body. userId
-
-
-        if (!tittle || !description || !userId) {
-            return res.status(400).json({
-                msg: "Todos los campos son obligatorios"
-            });
+        const body = req.body;
+        if (!body.description || !body.title || !body.userId) {
+            res.status(400).json({ msg: "Faltan datos para crear un cuestionario" })
         }
-
-        const newQuestionnaire = new QuestionnairesModel({
-            tittle,
-            description,
-            userId
-        });
-
-        await newQuestionnaire.save();
-
-        res.status(200).json({
-            msg: "Cuestionario creado exitosamente",
-            questionnaire: newQuestionnaire
-        });
+        const questionnaire: IQuestionnaries = {
+            description: body.description,
+            tittle: body.title,
+            userId: body.userId
+        }
+        let isInvalidQuestion = false;
+        for (const question of body.questions) {
+            if (!question.title || !question.type || typeof question.isMandatory == "undefined") {
+                isInvalidQuestion = true;
+            }
+            if (question.options.length <= 0 || !question.options[0] || question.options[0].length <= 0) {
+                isInvalidQuestion = true
+            }
+        }
+        if (isInvalidQuestion) {
+            res.status(400).json({ msg: "Faltan datos para crear un cuestionario (en preguntas)" })
+            return
+        }
+        const createdQuestionnaire = await QuestionnairesModel.create(questionnaire);
+        for (const question of body.questions) {
+            const objQuestion = {
+                title: question.title,
+                type: question.type,
+                isMandatory: question.isMandatory,
+                questionnaireId: createdQuestionnaire._id
+            };
+            const createdQuestion = await QuestionModel.create(objQuestion);
+            for (const option of question.options) {
+                const objOption = {
+                    title: option,
+                    questionId: createdQuestion._id
+                }
+                await OpcionsModel.create(objOption);
+            }
+        }
+        res.status(200).json({ msg: "Cuestionario creado con exito" })
+        return
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            msg: "Hubo un error al crear el cuestionario"
-        });
+        console.log(error);
+        res.status(500).json({ msg: "Hubo un error al crear el cuestionario" })
+        return
     }
-};
+}
 
-export const getAllQuestionnaires = async (req: Request, res: Response): Promise<any> => {
-    try {
-        const questionnaires = await QuestionnairesModel.find();
-
-        if (questionnaires.length === 0) {
-            return res.status(404).json({
-                msg: "No se encontraron cuestionarios"
-            });
-        }
-
-        res.status(200).json({
-            questionnaires
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            msg: "Hubo un error al obtener los cuestionarios"
-        });
+export const getMetrics = async (req: Request, res: Response): Promise<any>=>{
+    try{
+        const numberUsers = await UserModel.find({rol:"client"}).countDocuments()
+        const numberOfQuestionnaires = await QuestionnairesModel.find().countDocuments()
+        res.status(200).json({msg:'Datos obtenidos con exito', numberOfQuestionnaires, numberUsers})
+    }catch(error){
+        console.log(error)
+        res.status(500).json({msg: 'hubo un error al crear el cuestionario'})
     }
-};
+}
 
-export const getQuestionnaireById = async (req: Request, res: Response): Promise<any> => {
-    try {
-        const { id } = req.params;
-
-        const questionnaire = await QuestionnairesModel.findById(id);
-
-        if (!questionnaire) {
-            return res.status(404).json({
-                msg: "Cuestionario no encontrado"
-            });
-        }
-
-        res.status(200).json({
-            questionnaire
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            msg: "Hubo un error al obtener el cuestionario"
-        });
+export const getQuestionnaires = async (req: Request, res: Response): Promise<any>=>{
+    try{
+        const questionnaires = await QuestionnairesModel.find()
+        res.status(200).json({msg: "cuestionarios obtenidos con exito"})
+    }catch (error){
+        console.log(error)
+        res.status(500).json({msg:'hubo un error al obtener los cuestionarios'})
     }
-};
-
-
-export const updateQuestionnaire = async (req: Request, res: Response): Promise<any> => {
-    try {
-        const { id } = req.params;
-        const { tittle, description, userId } = req.body;
-
-        if (!tittle || !description || !userId) {
-            return res.status(400).json({
-                msg: "Todos los campos son obligatorios"
-            });
-        }
-
-        const updatedQuestionnaire = await QuestionnairesModel.findByIdAndUpdate(
-            id,
-            { tittle, description, userId },
-            { new: true }
-        );
-
-        if (!updatedQuestionnaire) {
-            return res.status(404).json({
-                msg: "Cuestionario no encontrado"
-            });
-        }
-
-        res.status(200).json({
-            msg: "Cuestionario actualizado exitosamente",
-            questionnaire: updatedQuestionnaire
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            msg: "Hubo un error al actualizar el cuestionario"
-        });
-    }
-};
-
-export const deleteQuestionnaire = async (req: Request, res: Response): Promise<any> => {
-    try {
-        const { id } = req.params;
-
-        const deletedQuestionnaire = await QuestionnairesModel.findByIdAndDelete(id);
-
-        if (!deletedQuestionnaire) {
-            return res.status(404).json({
-                msg: "Cuestionario no encontrado"
-            });
-        }
-
-        res.status(200).json({
-            msg: "Cuestionario eliminado exitosamente"
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            msg: "Hubo un error al eliminar el cuestionario"
-        });
-    }
-};
+}
